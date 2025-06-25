@@ -76,8 +76,15 @@ void btree_traverse(BTree* tree) {
     if (!tree || !tree->root) return;
 
     BTreeNode* node = tree->root;
+
+    // Itera sobre todas as chaves (arquivos e diretórios) do nó raiz
     for (int i = 0; i < node->num_keys; i++) {
-        printf("- %s\n", node->keys[i]->name);
+        printf("- %s\n", node->keys[i]->name); // Exibe o nome do arquivo ou diretório
+
+        // Se for um diretório, chama recursivamente para listar o conteúdo do subdiretório
+        if (node->keys[i]->type == DIRECTORY_TYPE) {
+            btree_traverse(node->keys[i]->data.directory->tree);  // chamada recursiva
+        }
     }
 }
 
@@ -97,8 +104,25 @@ void list_directory_contents(Directory* dir) {
         return;
     }
 
+    BTreeNode* root_node = dir->tree->root;
+    if (root_node->num_keys == 0) {
+        printf("Diretório vazio.\n");
+        return;
+    }
+
     printf("Conteúdo do diretório:\n");
-    btree_traverse(dir->tree);
+
+    // Itera sobre todas as chaves do nó raiz (diretórios e arquivos)
+    for (int i = 0; i < root_node->num_keys; i++) {
+        // Exibe o nome do arquivo ou diretório
+        printf("- %s\n", root_node->keys[i]->name);
+
+        // Se for um diretório, chama recursivamente para listar o conteúdo do subdiretório
+        if (root_node->keys[i]->type == DIRECTORY_TYPE) {
+            // Aqui estamos chamando list_directory_contents de forma recursiva
+            list_directory_contents(root_node->keys[i]->data.directory);
+        }
+    }
 }
 
 void change_directory(Directory** current, const char* path) {

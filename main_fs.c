@@ -79,7 +79,7 @@ list_directory_contents(dirDOCS->data.directory);
 delete_txt_file(dirDOCS->data.directory->tree, "manual.txt");
 
 // Agora exclui o diretório DOCS
-delete_directory(root->tree, "DOCS");
+//delete_directory(root->tree, "DOCS");
 
 printf("--- Conteúdo do diretório ROOT após exclusão ---\n");
 list_directory_contents(root);
@@ -92,5 +92,11 @@ change_directory(&current, "SO");
 printf("\n--- Conteúdo do diretório atual após mudança para 'SO' ---\n");
 list_directory_contents(current);
 */
+printf("\n--- Teste direto de btree_traverse para diretório ROOT ---\n");
+btree_traverse(root->tree);
+
+printf("\n--- Teste DOCS ---\n");
+list_directory_contents(dirSO->data.directory);
+
     return 0;
 }
