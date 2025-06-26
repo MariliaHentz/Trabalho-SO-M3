@@ -7,20 +7,30 @@ int main() {
     // Diretórios de segundo nível
     TreeNode* dirSO = create_directory("SO");
     TreeNode* dirTEST = create_directory("TEST");
+    TreeNode* dirTEST1 = create_directory("TEST1");
+    TreeNode* dirTEST2 = create_directory("TEST2");
+    TreeNode* dirTEST3 = create_directory("TEST3");
+    TreeNode* dirTEST4 = create_directory("TEST4");
     btree_insert(root->tree, dirSO);
     btree_insert(root->tree, dirTEST);
+    btree_insert(root->tree, dirTEST1);
+    btree_insert(root->tree, dirTEST2);
+    btree_insert(root->tree, dirTEST3);
+    btree_insert(root->tree, dirTEST4);
+    btree_insert(root->tree, dirTEST4);
 
     // Arquivo em SO
     TreeNode* file1 = create_txt_file("arquivo1.txt", "Arquivo de teste de SO.");
     btree_insert(dirSO->data.directory->tree, file1);
 
     // Listagem
-    printf("--- Conteúdo do diretório ROOT ---\n");
+    printf("--- listar toda a arvore ---\n");
     list_directory_contents(root);
+    btree_traverse(root->tree);
 
     printf("\n--- Conteúdo do diretório SO ---\n");
     list_directory_contents(dirSO->data.directory);
-
+/*
     // Simulação de persistência
     FILE* img = fopen("fs.img", "w");
     if (img) {
@@ -62,7 +72,7 @@ int main() {
     delete_directory(root->tree, "TEMP");
     printf("--- Conteúdo do diretório ROOT após exclusão ---\n");
     list_directory_contents(root);
-*/
+
     // Cria diretório "DOCS" e adiciona na raiz
 TreeNode* dirDOCS = create_directory("DOCS");
 btree_insert(root->tree, dirDOCS);
@@ -91,12 +101,12 @@ change_directory(&current, "SO");
 // Mostrar o conteúdo do diretório atual
 printf("\n--- Conteúdo do diretório atual após mudança para 'SO' ---\n");
 list_directory_contents(current);
-*/
+
 printf("\n--- Teste direto de btree_traverse para diretório ROOT ---\n");
 btree_traverse(root->tree);
 
 printf("\n--- Teste DOCS ---\n");
-list_directory_contents(dirSO->data.directory);
+list_directory_contents(dirSO->data.directory);*/
 
     return 0;
 }
