@@ -212,14 +212,8 @@ void list_directory_contents(Directory* dir) {
         return;
     }
 
-    printf("Conteúdo do diretório:\n");
-
     for (int i = 0; i < root_node->num_keys; i++) {
         printf("- %s\n", root_node->keys[i]->name);
-
-        if (root_node->keys[i]->type == DIRECTORY_TYPE) {
-            list_directory_contents(root_node->keys[i]->data.directory);
-        }
     }
 }
 
@@ -231,6 +225,7 @@ void change_directory(Directory** current, const char* path) {
     } else {
         printf("Diretório '%s' não encontrado.\n", path);
     }
+    
 }
 
 void delete_directory(BTree* tree, const char* name) {
