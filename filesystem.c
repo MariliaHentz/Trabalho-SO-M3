@@ -137,12 +137,6 @@ void btree_insert(BTree* tree, TreeNode* item) {
 
     BTreeNode* root = tree->root;
 
-    // Verifica se a chave já existe
-    if (btree_search(tree, item->name) != NULL) {
-        printf("Erro: item com nome '%s' já existe.\n", item->name);
-        return;
-    }
-
     // Se a raiz está cheia, cria nova raiz e divide
     if (root->num_keys == 2 * BTREE_ORDER - 1) {
         BTreeNode* new_root = malloc(sizeof(BTreeNode));
@@ -319,37 +313,45 @@ TreeNode* btree_search(BTree* tree, const char* name) {
 void save_tree_to_file(FILE* file, BTreeNode* node, int depth);
 
 void save_directory_image(FILE* file, Directory* dir, int depth) {
-    if (!dir || !dir->tree || !dir->tree->root) return;
-    save_tree_to_file(file, dir->tree->root, depth);
+    if (dir != NULL && dir->tree != NULL && dir->tree->root != NULL) {
+        save_tree_to_file(file, dir->tree->root, depth);
+    }
 }
 
 void save_tree_to_file(FILE* file, BTreeNode* node, int depth) {
-    if (!node) return;
+    if (node == NULL) return;
 
     int i;
     for (i = 0; i < node->num_keys; i++) {
-        for (int d = 0; d < depth; d++) fprintf(file, "  "); 
-        fprintf(file, "- %s (%s)\n", node->keys[i]->name,
-                node->keys[i]->type == FILE_TYPE ? "Arquivo" : "Diretório");
+        // Indentação
+        for (int d = 0; d < depth; d++) {
+            fprintf(file, "  ");
+        }
 
-        // Se for diretório, salvar conteúdo recursivo
+        // Impressão do nome e tipo
+        if (node->keys[i]->type == FILE_TYPE) {
+            fprintf(file, "- %s (Arquivo)\n", node->keys[i]->name);
+        } else if (node->keys[i]->type == DIRECTORY_TYPE) {
+            fprintf(file, "- %s (Diretório)\n", node->keys[i]->name);
+        }
+
+        // Se for diretório, salva seu conteúdo recursivamente
         if (node->keys[i]->type == DIRECTORY_TYPE) {
             save_directory_image(file, node->keys[i]->data.directory, depth + 1);
         }
-
-        if (!node->leaf) {
-            save_tree_to_file(file, node->children[i], depth);
-        }
     }
 
+    // Após o loop, visita os filhos se não for folha
     if (!node->leaf) {
-        save_tree_to_file(file, node->children[i], depth);
+        for (int j = 0; j <= node->num_keys; j++) {
+            save_tree_to_file(file, node->children[j], depth);
+        }
     }
 }
 
 void save_filesystem_image(const Directory* root, const char* path) {
     FILE* file = fopen(path, "w");
-    if (!file) {
+    if (file == NULL) {
         perror("Erro ao criar fs.img");
         return;
     }
@@ -360,3 +362,4 @@ void save_filesystem_image(const Directory* root, const char* path) {
 
     printf("Sistema de arquivos salvo em '%s'\n", path);
 }
+
