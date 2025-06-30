@@ -1,6 +1,7 @@
 Estrutura do Sistema de Arquivos:
 - A (Diretório)
-  - ARQUIVO.txt (Arquivo)
-  - arquivo2.txt (Arquivo)
+  - AA (Diretório)
+  - arqA (Arquivo)
 - B (Diretório)
 - C (Diretório)
+- teste.txt (Arquivo)

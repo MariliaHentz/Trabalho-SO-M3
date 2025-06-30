@@ -160,13 +160,20 @@ void btree_insert(BTree* tree, TreeNode* item) {
 
 
 void btree_traverse_node(BTreeNode* node) {
+    static int indent = 0;
     if (!node) return;
 
     int i;
     for (i = 0; i < node->num_keys; i++) {
         // Visita o filho antes da chave, se não for folha
         if (!node->leaf) {
+            indent++;
             btree_traverse_node(node->children[i]);
+            indent--;
+        }
+
+        for (int j = 0; j < indent; j++) {
+            printf("  ");  // 2 espaços por nível
         }
 
         // Imprime o nome do arquivo ou diretório
@@ -174,14 +181,22 @@ void btree_traverse_node(BTreeNode* node) {
 
         // Se for diretório, mostra conteúdo recursivamente
         if (node->keys[i]->type == DIRECTORY_TYPE) {
+            for (int j = 0; j < indent; j++) {
+                printf("  ");
+            }
+
             printf("  (Conteúdo de %s):\n", node->keys[i]->name);
+            indent++;
             btree_traverse(node->keys[i]->data.directory->tree);
+            indent--;
         }
     }
 
     // Visita o último filho
     if (!node->leaf) {
+        indent++;
         btree_traverse_node(node->children[i]);
+        indent--;
     }
 }
 
@@ -245,8 +260,6 @@ void delete_directory(BTree* tree, const char* name) {
 
 
 void btree_delete(BTree* tree, const char* name) {
-    // OBS: Versão simplificada que apenas marca como excluído na árvore
-    // (não faz rebalanceamento ainda)
 
     if (!tree || !tree->root) return;
 
@@ -258,13 +271,13 @@ void btree_delete(BTree* tree, const char* name) {
                 free(node->keys[i]->data.file->content);
                 free(node->keys[i]->data.file->name);
                 free(node->keys[i]->data.file);
-            } else if (node->keys[i]->type == DIRECTORY_TYPE) {
-                // Não implementado: liberar recursivamente os filhos
-            }
+            } 
+
+            // Remove o ponteiro
             free(node->keys[i]->name);
             free(node->keys[i]);
 
-            // Move as outras chaves para preencher o espaço
+            // Move chaves para preencher o espaço
             for (int j = i; j < node->num_keys - 1; j++) {
                 node->keys[j] = node->keys[j + 1];
             }
@@ -315,7 +328,7 @@ void save_tree_to_file(FILE* file, BTreeNode* node, int depth) {
 
     int i;
     for (i = 0; i < node->num_keys; i++) {
-        for (int d = 0; d < depth; d++) fprintf(file, "  ");  // indent
+        for (int d = 0; d < depth; d++) fprintf(file, "  "); 
         fprintf(file, "- %s (%s)\n", node->keys[i]->name,
                 node->keys[i]->type == FILE_TYPE ? "Arquivo" : "Diretório");
 
@@ -342,7 +355,7 @@ void save_filesystem_image(const Directory* root, const char* path) {
     }
 
     fprintf(file, "Estrutura do Sistema de Arquivos:\n");
-    save_directory_image(file, (Directory*)root, 0);  // (cast seguro aqui)
+    save_directory_image(file, (Directory*)root, 0);
     fclose(file);
 
     printf("Sistema de arquivos salvo em '%s'\n", path);
