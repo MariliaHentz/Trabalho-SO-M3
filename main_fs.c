@@ -136,10 +136,11 @@ int main() {
         printf("7 - Deletar diretório\n");
         printf("8 - Buscar item por nome\n");
         printf("9 - Mostrar árvore B (recursiva)\n");
-        printf("10 - Sair\n");
+        printf("10 - Salvar sistema de arquivos em fs.img\n");///////////
+        printf("11 - Sair\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcao);
-        getchar();  // limpa o '\n'
+        getchar(); 
 
         switch (opcao) {
             case 1: // Inserir diretório
@@ -214,6 +215,10 @@ int main() {
                 break;
 
             case 10:
+                save_filesystem_image(root, "fs.img");
+            break;
+
+            case 11:
                 printf("Encerrando sistema de arquivos.\n");
                 return 0;
 

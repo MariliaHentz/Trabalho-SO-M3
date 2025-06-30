@@ -1,4 +1,6 @@
-ROOT
-├── SO
-│   └── arquivo1.txt: Arquivo de teste de SO.
-└── TEST
+Estrutura do Sistema de Arquivos:
+- A (Diretório)
+  - ARQUIVO.txt (Arquivo)
+  - arquivo2.txt (Arquivo)
+- B (Diretório)
+- C (Diretório)

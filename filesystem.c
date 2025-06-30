@@ -301,3 +301,49 @@ TreeNode* btree_search(BTree* tree, const char* name) {
 
     return NULL;
 }
+
+////////////
+void save_tree_to_file(FILE* file, BTreeNode* node, int depth);
+
+void save_directory_image(FILE* file, Directory* dir, int depth) {
+    if (!dir || !dir->tree || !dir->tree->root) return;
+    save_tree_to_file(file, dir->tree->root, depth);
+}
+
+void save_tree_to_file(FILE* file, BTreeNode* node, int depth) {
+    if (!node) return;
+
+    int i;
+    for (i = 0; i < node->num_keys; i++) {
+        for (int d = 0; d < depth; d++) fprintf(file, "  ");  // indent
+        fprintf(file, "- %s (%s)\n", node->keys[i]->name,
+                node->keys[i]->type == FILE_TYPE ? "Arquivo" : "Diretório");
+
+        // Se for diretório, salvar conteúdo recursivo
+        if (node->keys[i]->type == DIRECTORY_TYPE) {
+            save_directory_image(file, node->keys[i]->data.directory, depth + 1);
+        }
+
+        if (!node->leaf) {
+            save_tree_to_file(file, node->children[i], depth);
+        }
+    }
+
+    if (!node->leaf) {
+        save_tree_to_file(file, node->children[i], depth);
+    }
+}
+
+void save_filesystem_image(const Directory* root, const char* path) {
+    FILE* file = fopen(path, "w");
+    if (!file) {
+        perror("Erro ao criar fs.img");
+        return;
+    }
+
+    fprintf(file, "Estrutura do Sistema de Arquivos:\n");
+    save_directory_image(file, (Directory*)root, 0);  // (cast seguro aqui)
+    fclose(file);
+
+    printf("Sistema de arquivos salvo em '%s'\n", path);
+}
