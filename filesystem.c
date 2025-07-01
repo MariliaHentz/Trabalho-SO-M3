@@ -37,18 +37,6 @@ Directory* get_root_directory() {
 }
 
 
-/*
-void btree_insert(BTree* tree, TreeNode* node) {
-    printf("Inserindo: %s (simulado)\n", node->name);
-}
-
-
-void btree_traverse(BTree* tree) {
-    printf("[Exemplo] arquivo.txt\n");
-
-}
-*/
-/////////////////////////////
 void btree_split_child(BTreeNode* parent, int i, BTreeNode* full_child) {
     int t = BTREE_ORDER;
 
@@ -56,12 +44,10 @@ void btree_split_child(BTreeNode* parent, int i, BTreeNode* full_child) {
     new_child->leaf = full_child->leaf;
     new_child->num_keys = t - 1;
 
-    // Copia as últimas t-1 chaves para o novo filho
     for (int j = 0; j < t - 1; j++) {
         new_child->keys[j] = full_child->keys[j + t];
     }
 
-    // Se não for folha, copia os filhos também
     if (!full_child->leaf) {
         for (int j = 0; j < t; j++) {
             new_child->children[j] = full_child->children[j + t];
@@ -70,13 +56,13 @@ void btree_split_child(BTreeNode* parent, int i, BTreeNode* full_child) {
 
     full_child->num_keys = t - 1;
 
-    // Move os filhos do pai para abrir espaço
+
     for (int j = parent->num_keys; j >= i + 1; j--) {
         parent->children[j + 1] = parent->children[j];
     }
     parent->children[i + 1] = new_child;
 
-    // Move as chaves do pai para abrir espaço para a chave promovida
+
     for (int j = parent->num_keys - 1; j >= i; j--) {
         parent->keys[j + 1] = parent->keys[j];
     }
@@ -89,13 +75,11 @@ void btree_insert_nonfull(BTreeNode* node, TreeNode* item) {
     int i = node->num_keys - 1;
 
     if (node->leaf) {
-        // Move as chaves para abrir espaço
         while (i >= 0 && strcmp(item->name, node->keys[i]->name) < 0) {
             node->keys[i + 1] = node->keys[i];
             i--;
         }
 
-        // Verifica duplicação
         if (i >= 0 && strcmp(item->name, node->keys[i]->name) == 0) {
             printf("Erro: item com nome '%s' já existe.\n", item->name);
             return;
@@ -104,19 +88,18 @@ void btree_insert_nonfull(BTreeNode* node, TreeNode* item) {
         node->keys[i + 1] = item;
         node->num_keys++;
     } else {
-        // Encontra o filho correto
+        // Encontra o filho
         while (i >= 0 && strcmp(item->name, node->keys[i]->name) < 0) {
             i--;
         }
         i++;
 
-        // Verifica duplicação
         if (i < node->num_keys && strcmp(item->name, node->keys[i]->name) == 0) {
             printf("Erro: item com nome '%s' já existe.\n", item->name);
             return;
         }
 
-        // Divide se necessário
+        // Divide
         if (node->children[i]->num_keys == 2 * BTREE_ORDER - 1) {
             btree_split_child(node, i, node->children[i]);
             if (strcmp(item->name, node->keys[i]->name) > 0) {
@@ -137,7 +120,7 @@ void btree_insert(BTree* tree, TreeNode* item) {
 
     BTreeNode* root = tree->root;
 
-    // Se a raiz está cheia, cria nova raiz e divide
+    // raiz está cheia, cria e divide
     if (root->num_keys == 2 * BTREE_ORDER - 1) {
         BTreeNode* new_root = malloc(sizeof(BTreeNode));
         new_root->leaf = 0;
@@ -159,7 +142,6 @@ void btree_traverse_node(BTreeNode* node) {
 
     int i;
     for (i = 0; i < node->num_keys; i++) {
-        // Visita o filho antes da chave, se não for folha
         if (!node->leaf) {
             indent++;
             btree_traverse_node(node->children[i]);
@@ -167,13 +149,11 @@ void btree_traverse_node(BTreeNode* node) {
         }
 
         for (int j = 0; j < indent; j++) {
-            printf("  ");  // 2 espaços por nível
+            printf("  ");  
         }
 
-        // Imprime o nome do arquivo ou diretório
         printf("- %s\n", node->keys[i]->name);
 
-        // Se for diretório, mostra conteúdo recursivamente
         if (node->keys[i]->type == DIRECTORY_TYPE) {
             for (int j = 0; j < indent; j++) {
                 printf("  ");
@@ -186,7 +166,6 @@ void btree_traverse_node(BTreeNode* node) {
         }
     }
 
-    // Visita o último filho
     if (!node->leaf) {
         indent++;
         btree_traverse_node(node->children[i]);
@@ -260,7 +239,7 @@ void btree_delete(BTree* tree, const char* name) {
     BTreeNode* node = tree->root;
     for (int i = 0; i < node->num_keys; i++) {
         if (strcmp(node->keys[i]->name, name) == 0) {
-            // Libera a memória do TreeNode
+            // Libera a memória
             if (node->keys[i]->type == FILE_TYPE) {
                 free(node->keys[i]->data.file->content);
                 free(node->keys[i]->data.file->name);
@@ -271,7 +250,6 @@ void btree_delete(BTree* tree, const char* name) {
             free(node->keys[i]->name);
             free(node->keys[i]);
 
-            // Move chaves para preencher o espaço
             for (int j = i; j < node->num_keys - 1; j++) {
                 node->keys[j] = node->keys[j + 1];
             }
@@ -309,7 +287,6 @@ TreeNode* btree_search(BTree* tree, const char* name) {
     return NULL;
 }
 
-////////////
 void save_tree_to_file(FILE* file, BTreeNode* node, int depth);
 
 void save_directory_image(FILE* file, Directory* dir, int depth) {
@@ -323,25 +300,21 @@ void save_tree_to_file(FILE* file, BTreeNode* node, int depth) {
 
     int i;
     for (i = 0; i < node->num_keys; i++) {
-        // Indentação
         for (int d = 0; d < depth; d++) {
             fprintf(file, "  ");
         }
 
-        // Impressão do nome e tipo
         if (node->keys[i]->type == FILE_TYPE) {
             fprintf(file, "- %s (Arquivo)\n", node->keys[i]->name);
         } else if (node->keys[i]->type == DIRECTORY_TYPE) {
             fprintf(file, "- %s (Diretório)\n", node->keys[i]->name);
         }
 
-        // Se for diretório, salva seu conteúdo recursivamente
         if (node->keys[i]->type == DIRECTORY_TYPE) {
             save_directory_image(file, node->keys[i]->data.directory, depth + 1);
         }
     }
 
-    // Após o loop, visita os filhos se não for folha
     if (!node->leaf) {
         for (int j = 0; j <= node->num_keys; j++) {
             save_tree_to_file(file, node->children[j], depth);
